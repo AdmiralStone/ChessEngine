@@ -1,20 +1,22 @@
 #include <iostream>
 #include <stdio.h>
-#include <raylib.h>
 #include "Globals.hpp"
-#include "Setup.hpp"
+#include "Game.hpp"
+#include "raylib.h"
 
 int main(){
     InitWindow(WIN_WIDTH , WIN_HEIGHT, "Chess");
 
     SetTargetFPS(TARGET_FPS);
 
-    Setup gameSetup = Setup();
+    Game game = Game();
 
     while(!WindowShouldClose()){
         BeginDrawing();
 
-            gameSetup.DrawBackground();
+            game.DrawBackground();
+
+            game.DrawPieces();
 
         EndDrawing();
     }

@@ -11,3 +11,7 @@ const Color cyan = {21,204,209,255};
 const Color blue = {13,64,216,255};
 const Color darkBlue = {44,44,127,255};
 const Color lightBlue = {59,85,162,255};
+
+bool ColorEq(Color c1, Color c2) {
+    return (c1.r == c2.r && c1.g == c2.g && c1.b == c2.b && c1.a == c2.a);
+}

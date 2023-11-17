@@ -11,3 +11,6 @@ extern const Color cyan;
 extern const Color blue;
 extern const Color lightBlue;
 extern const Color darkBlue;
+extern const Color white;
+
+bool ColorEq(Color c1, Color c2);

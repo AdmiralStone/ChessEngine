@@ -10,9 +10,5 @@ const int WIN_WIDTH = 800;
 //Board Dimension
 const int COLS = 8;
 const int ROWS = 8;
-const int BLOCK_SIZE = WIN_WIDTH / COLS;
-
-
-
-
+const int SQUARE_SIZE = WIN_WIDTH / COLS;
 
