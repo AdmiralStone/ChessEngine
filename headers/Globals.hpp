@@ -12,3 +12,13 @@ const int COLS = 8;
 const int ROWS = 8;
 const int SQUARE_SIZE = WIN_WIDTH / COLS;
 
+
+//Piece Types
+enum PIECE_TYPE{
+    PAWN,
+    KING,
+    QUEEN,
+    BISHOP,
+    KNIGHT,
+    ROOK
+};
