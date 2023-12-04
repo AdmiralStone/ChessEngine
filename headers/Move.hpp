@@ -15,6 +15,7 @@ public:
    ~Move();
 
    Vector2 getFinalSquare();
+   Vector2 getInitialSquare();
 };
 
 

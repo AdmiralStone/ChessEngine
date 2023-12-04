@@ -3,8 +3,8 @@
 const Color darkGrey = {26,31,40,255};
 const Color lightGreen = {234,235,200,255};
 const Color darkGreen = {119,154,88,255};
-const Color red = {232,18,18,255};
-const Color lightRed = {255,18,18,255};
+const Color red = {233,33,77,255};
+const Color lightRed = {255,81,116,255};
 const Color orange = {226,116,17,255};
 const Color yellow = {237,234,4,255};
 const Color purple = {166,0,247,255};

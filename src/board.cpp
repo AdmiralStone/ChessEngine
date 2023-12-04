@@ -42,8 +42,6 @@ void Board::initializePieces(Color pieceColor){
         gameBoard[pawnRow][i].setPiece(new Pawn(pieceColor));
     }
 
-    gameBoard[5][2].setPiece(new Pawn(BLACK));
-
     //Knight
     gameBoard[pieceRow][1].setPiece(new Knight(pieceColor));
     gameBoard[pieceRow][6].setPiece(new Knight(pieceColor));
@@ -72,19 +70,37 @@ void Board::calc_moves(Piece* selectedPiece, int row, int col){
     switch (selectedPieceType)
     {
     case 0://PAWN
-        Pawn_Moves(selectedPiece,row,col);
+    {   Pawn_Moves(selectedPiece,row,col);
         break;
+    }
     case 1://KING
+    {   
+        King_Moves(selectedPiece,row,col);
         break;
+    }
     case 2://QUEEN
+    {   
+        std::vector<std::vector<int>>increments = {{-1,1} , {-1,-1} , {1,1} , {1,-1}, {-1,0} , {0,1} , {1,0} , {0,-1}};
+        Straight_line_Moves(selectedPiece,row,col,increments);
         break;
+    }
     case 3://BISHOP
+    {
+        std::vector<std::vector<int>>increments = {{-1,1} , {-1,-1} , {1,1} , {1,-1}};
+        Straight_line_Moves(selectedPiece,row,col,increments);
         break;
+    }
     case 4://KNIGHT
+    {
         Knight_Moves(selectedPiece,row,col);
         break;
+    }
     case 5://ROOK
-        break;
+        {
+            std::vector<std::vector<int>>increments = {{-1,0} , {0,1} , {1,0} , {0,-1}};
+            Straight_line_Moves(selectedPiece,row,col,increments);
+            break;
+        }
     }
 }
 
@@ -100,8 +116,6 @@ void Board::Knight_Moves(Piece *SelectedPiece, int row,int col){
         {row+1,col-2},{row-1,col-2},
 
     };
-
-    std::vector<std::vector<int>> valid_moves;
 
     for(int i=0;i<(int)possible_moves.size();i++){
         int possibleRow = possible_moves[i][0];
@@ -195,12 +209,118 @@ void Board::Pawn_Moves(Piece *SelectedPiece, int row,int col){
 
             Move *move = new Move(initialSquarePos, finalSquarePos);
                 
-                // Add new move to possible moves list on piece
+            // Add new move to possible moves list on piece
             SelectedPiece->addMoves(move);
         }
     }
-    
+}
 
-    
+void Board::Straight_line_Moves(Piece *SelectedPiece, int row,int col,std::vector<std::vector<int>>increments){
+    Color selectedPieceColor = SelectedPiece->getPieceColor();
 
+    for(auto inc:increments){
+        int rowIncrements = inc[0];
+        int colIncrements = inc[1];
+
+        int possibleRow = row+rowIncrements;
+        int possibleCol = col+colIncrements;
+
+        while(true){
+            if(Square::inRange(possibleRow,possibleCol)){
+                Vector2 initialSquarePos = {(float)row,(float)col};
+
+                Vector2 finalSquarePos = {(float)possibleRow,(float)possibleCol};
+
+                Move *move = new Move(initialSquarePos, finalSquarePos);
+
+                if(gameBoard[possibleRow][possibleCol].isEmpty()){
+                    SelectedPiece->addMoves(move);
+                }else if(gameBoard[possibleRow][possibleCol].hasRivalPiece(selectedPieceColor)){
+                    SelectedPiece->addMoves(move);
+                    break;
+                }else{
+                    break;
+                }
+
+                possibleRow += rowIncrements;
+                possibleCol += colIncrements;
+            }else{
+                break;
+            }
+        }
+    }
+}
+
+void Board::King_Moves(Piece* selectedPiece, int row, int col){
+    Color selectedPieceColor = selectedPiece->getPieceColor();
+
+    std::vector<std::vector<int>>possibleMoves = {
+        {row-1,col},
+        {row+1,col},
+        {row+1,col+1},
+        {row-1,col+1},
+        {row,col+1},
+        {row,col-1},
+        {row-1,col-1},
+        {row+1,col-1}
+    };
+
+    for(auto move: possibleMoves){
+        int possibleRow = move[0];
+        int possibleCol = move[1];
+
+        if(Square::inRange(possibleRow,possibleCol)){
+            if(gameBoard[possibleRow][possibleCol].empty_or_rival(selectedPieceColor)){
+                // Create New Move
+                Vector2 initialSquarePos = {(float)row,(float)col};
+               
+                Vector2 finalSquarePos = {(float)possibleRow,(float)possibleCol};
+
+                Move *move = new Move(initialSquarePos, finalSquarePos);
+                
+                // Add new move to possible moves list on piece
+                selectedPiece->addMoves(move);
+            }
+        }
+    }
+
+    // TODO: Casteling Moves
+
+}
+
+void Board::ProcessMove(Move* newMove){
+    Vector2 initialPosition = newMove->getInitialSquare();
+    Vector2 finalPosition = newMove->getFinalSquare();
+
+
+    // console board move update
+    if(gameBoard[finalPosition.y][finalPosition.x].getPiece()){
+        gameBoard[finalPosition.y][finalPosition.x].deletePiece();
+    }
+
+    gameBoard[finalPosition.y][finalPosition.x].setPiece((std::move(gameBoard[initialPosition.y][initialPosition.x].getPiece())));
+
+    gameBoard[initialPosition.y][initialPosition.x].setPiece(nullptr);
+
+    gameBoard[finalPosition.y][finalPosition.x].piece->clearMoveVector();
+
+    gameBoard[finalPosition.y][finalPosition.x].piece->setMoved();
+
+
+
+}
+
+bool Board::ValidateMove(Piece* selectedPiece, Move* move){
+    int finalSquareRow = move->getFinalSquare().x;
+    int finalSquareCol = move->getFinalSquare().y;
+
+    for(auto possibleMoves:selectedPiece->getMoveVector()){
+
+        int possibleRow = possibleMoves->getFinalSquare().y;
+        int possibleCol = possibleMoves->getFinalSquare().x; 
+
+        if(possibleRow == finalSquareRow && possibleCol == finalSquareCol)return true;
+    }
+
+    return false;
 }

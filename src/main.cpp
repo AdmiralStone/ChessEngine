@@ -37,6 +37,19 @@ int main(){
 
                 }
             }else if(IsMouseButtonReleased(MOUSE_BUTTON_LEFT) && game.isPieceSelected()){
+                Vector2 currentMousePos = GetMousePosition();
+                game.updateDragger(currentMousePos);
+
+                int selectedCol = currentMousePos.x/SQUARE_SIZE;
+                int selectedRow  = currentMousePos.y/SQUARE_SIZE;
+
+                Vector2 finalPos = {(float)selectedCol,(float)selectedRow};
+                Move *newMove = game.createNewMove(finalPos);
+
+                if(game.validateMove(newMove)){
+                    game.movePiece(newMove);
+                }
+
                 game.unsetDraggedPiece();
             }else if(game.isPieceSelected()){
                 Vector2 currentMousePos = GetMousePosition();

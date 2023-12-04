@@ -27,10 +27,12 @@ public:
     Color getPieceColor();
     void addMoves(Move*);
     std::vector<Move*> getMoveVector();
+    void clearMoveVector();
     
     bool checkIfMoved(); // Method used only for PAWN child to see if the pawn is at starting position
     int getPieceDirection();
     void setMoved();
+
 
     Piece();
     ~Piece();

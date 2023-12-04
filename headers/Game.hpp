@@ -5,6 +5,7 @@
 #include "Globals.hpp"
 #include "Colors.hpp"
 #include "Dragger.hpp"
+#include "Move.hpp"
 
 class Game{
     private:
@@ -26,6 +27,9 @@ class Game{
         bool isPieceSelected();
         void hoverPiece();
         void showPossibleMoves();
+        Move* createNewMove(Vector2);
+        bool validateMove(Move*);
+        void movePiece(Move*);
         
 
 

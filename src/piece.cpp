@@ -44,6 +44,10 @@ std::vector<Move*> Piece::getMoveVector(){
     return validMoves;
 };
 
+void Piece::clearMoveVector(){
+    validMoves.clear();
+}
+
 bool Piece::checkIfMoved(){
     return moved;
 }

@@ -18,6 +18,14 @@ void Square::setPiece(Piece *piece){
 
 }
 
+Piece* Square::getPiece(){
+    return piece;
+}
+
+void Square::deletePiece(){
+    delete piece;
+}
+
 bool Square::hasPiece(){ 
     if(piece != NULL){
         return true;

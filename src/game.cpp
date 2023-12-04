@@ -18,7 +18,6 @@ void Game::DrawBackground(){
         }
     }
 }
-
 void Game::DrawPieces(){
     for(int row = 0; row<ROWS; row++){
         for(int col = 0; col<COLS;col++){
@@ -33,7 +32,6 @@ void Game::DrawPieces(){
     }
     
 }
-
 void Game::showPossibleMoves(){
     if(dragger.dragging){
         Piece *selectedPiece = dragger.selectedPiece;
@@ -56,27 +54,23 @@ void Game::showPossibleMoves(){
         }
     }
 }
+
 //Methods related to dragger
 void Game::updateDragger(Vector2 mousePosition){
     dragger.updateMousePos(mousePosition);
 }
-
 void Game::savePiecePosition(Vector2 piecePos){
     dragger.saveInitPiecePos(piecePos);
 }
-
 void Game::setDraggedPiece(Piece* selectedPiece){
     dragger.dragPiece(selectedPiece);
 }
-
 void Game::unsetDraggedPiece(){
     dragger.unDragPiece();
 }
-
 bool Game::isPieceSelected(){
     return dragger.dragging;
 }
-
 void Game::hoverPiece(){
     dragger.dragPiece();
 }
@@ -92,7 +86,22 @@ void Game::generateMoves(Piece* selectedPiece, int pieceRow, int pieceCol){
     board.calc_moves(selectedPiece,pieceRow,pieceCol);
 }
 
+//Methods Related To Moves
+Move* Game::createNewMove(Vector2 finalPos){
+    Vector2 initialPos = {(float)dragger.initPieceCol,(float)dragger.initPieceRow};
 
+    Move* newMove = new Move(initialPos,finalPos);
+
+    return newMove;
+}
+bool Game::validateMove(Move* move){
+    Piece* selectedPiece = dragger.selectedPiece;
+    
+    return board.ValidateMove(selectedPiece,move);
+}
+void Game::movePiece(Move* newMove){
+    board.ProcessMove(newMove);
+}
 
 Game::Game(){}
 Game::~Game(){}
