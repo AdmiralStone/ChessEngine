@@ -11,8 +11,7 @@ Board::Board(){
     initializePieces(BLACK);
 }
 
-Board::~Board(){
-}
+Board::~Board(){}
 
 void Board::createBoard(){
     for(int row = 0; row < ROWS; row++){
@@ -306,7 +305,8 @@ void Board::ProcessMove(Move* newMove){
 
     gameBoard[finalPosition.y][finalPosition.x].piece->setMoved();
 
-    gameBoard[finalPosition.y][finalPosition.x].piece->setLastMove(newMove);
+    // gameBoard[finalPosition.y][finalPosition.x].piece->setLastMove(newMove);
+    lastMove = newMove;
 
 
 
@@ -325,4 +325,19 @@ bool Board::ValidateMove(Piece* selectedPiece, Move* move){
     }
 
     return false;
+}
+
+Move* Board::getLastMove(){
+    return lastMove;
+}
+
+void Board::Reset(){
+    lastMove = nullptr;
+    gameBoard.clear();
+
+    createBoard();
+
+    initializePieces(WHITE);
+
+    initializePieces(BLACK);
 }

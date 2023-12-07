@@ -7,7 +7,7 @@ Piece::Piece(/* args */)
 Piece::~Piece()
 {
     UnloadTexture(texture);
-    delete lastMove;
+    
 }
 
 

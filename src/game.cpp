@@ -32,6 +32,38 @@ void Game::DrawPieces(){
     }
     
 }
+void Game::DrawLastMove(){
+    Move* lastMove = board.getLastMove();
+
+    Vector2 initialSquare = lastMove->getInitialSquare();
+    Vector2 finalSquare = lastMove->getFinalSquare();
+
+    int row = initialSquare.y;
+    int col = initialSquare.x;
+
+    Color sqColor;
+
+    if((row+col) % 2 == 0){
+        sqColor = lastMoveLight;
+    }else{
+        sqColor = lastMoveDark;
+    }
+
+    Rectangle square = {(float) col * SQUARE_SIZE , (float)row * SQUARE_SIZE, (float)SQUARE_SIZE, (float)SQUARE_SIZE};
+    DrawRectangleRec(square,sqColor);
+
+    row = finalSquare.y;
+    col = finalSquare.x;
+
+    if((row+col) % 2 == 0){
+        sqColor = lastMoveLight;        
+    }else{
+        sqColor = lastMoveDark;
+    }
+
+    square = {(float) col * SQUARE_SIZE , (float)row * SQUARE_SIZE, (float)SQUARE_SIZE, (float)SQUARE_SIZE};
+    DrawRectangleRec(square,sqColor);
+}
 void Game::showPossibleMoves(){
     if(dragger.dragging){
         Piece *selectedPiece = dragger.selectedPiece;
@@ -54,6 +86,7 @@ void Game::showPossibleMoves(){
         }
     }
 }
+
 
 //Methods related to dragger
 void Game::updateDragger(Vector2 mousePosition){
@@ -85,6 +118,13 @@ Piece* Game::getPieceOnSquare(Vector2 squarePos){
 void Game::generateMoves(Piece* selectedPiece, int pieceRow, int pieceCol){
     board.calc_moves(selectedPiece,pieceRow,pieceCol);
 }
+bool Game::checkIfValidLastMove(){
+    if(board.getLastMove() != nullptr){
+        return true;
+    }else{
+        return false;
+    }
+}
 
 //Methods Related To Moves
 Move* Game::createNewMove(Vector2 finalPos){
@@ -104,7 +144,6 @@ void Game::movePiece(Move* newMove){
 
     switchPlayer();
 }
-
 void Game::switchPlayer(){
     if(currentPlayer == PLAYER_ONE){
         currentPlayer = PLAYER_TWO;
@@ -123,6 +162,12 @@ bool Game::checkIfPlayerPiece(Vector2 squarePos){
     }
 
     return ColorEq(selectedPiece->getPieceColor(),currentPlayerColor);
+}
+
+void Game::Reset(){
+    board.Reset();
+    dragger.Reset();
+    currentPlayer = PLAYER_ONE;
 }
 
 Game::Game(){}

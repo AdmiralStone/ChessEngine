@@ -12,6 +12,10 @@ int main(){
     Game game = Game();
 
     while(!WindowShouldClose()){
+        if(IsKeyReleased(KEY_SPACE)){
+            game.Reset();
+        }
+
         BeginDrawing();
 
             game.DrawBackground();
@@ -48,6 +52,8 @@ int main(){
 
                 if(game.validateMove(newMove)){
                     game.movePiece(newMove);
+
+                    game.DrawLastMove();
                 }
 
                 game.unsetDraggedPiece();
@@ -59,13 +65,15 @@ int main(){
 
             }
 
+            if(game.checkIfValidLastMove()){
+                game.DrawLastMove();
+            }
+
             game.DrawPieces();
 
             if(game.isPieceSelected()){
                 game.hoverPiece();
             }
-
-            
 
         EndDrawing();
     }

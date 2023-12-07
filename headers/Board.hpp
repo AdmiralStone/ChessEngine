@@ -11,7 +11,7 @@
 class Board
 {
 private:
-
+    Move* lastMove = nullptr;
 public:
     Board();
     ~Board();
@@ -29,6 +29,9 @@ public:
 
     void ProcessMove(Move*);
     bool ValidateMove(Piece*, Move*);
+    Move* getLastMove();
+
+    void Reset(); // Reset board
 };
 
 

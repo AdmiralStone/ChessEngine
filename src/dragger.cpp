@@ -40,4 +40,14 @@ Dragger::Dragger(/* args */)
 
 Dragger::~Dragger()
 {
+    delete selectedPiece;
+}
+
+void Dragger::Reset(){
+    mouseX = 0;
+    mouseY = 0;
+    initPieceRow = 0;
+    initPieceCol = 0;
+    selectedPiece = nullptr;
+    dragging = false;
 }

@@ -25,6 +25,8 @@ public:
     void unDragPiece();
     void dragPiece();
 
+    void Reset();
+
 };
 
 

@@ -19,6 +19,8 @@ class Game{
 
         void DrawBackground();
         void DrawPieces();
+        void DrawLastMove();
+
         void updateDragger(Vector2);
         bool squareHasPiece(Vector2);
         Piece* getPieceOnSquare(Vector2);
@@ -34,7 +36,8 @@ class Game{
         void movePiece(Move*);
         void switchPlayer(); //Switch player after move
         bool checkIfPlayerPiece(Vector2);// Check if pieceColor matches current Player color
-        
+        bool checkIfValidLastMove(); // Check if a valid last move exists on the board object
 
+        void Reset();
 
 };
