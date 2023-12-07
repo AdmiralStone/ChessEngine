@@ -140,7 +140,7 @@ bool Game::validateMove(Move* move){
     return board.ValidateMove(selectedPiece,move);
 }
 void Game::movePiece(Move* newMove){
-    board.ProcessMove(newMove);
+    board.ProcessMove(newMove,currentPlayer);
 
     switchPlayer();
 }
@@ -171,6 +171,7 @@ void Game::Reset(){
 }
 
 Game::Game(){}
+
 Game::~Game(){}
 
 

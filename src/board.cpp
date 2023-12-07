@@ -2,6 +2,10 @@
 #include "pieces.cpp"
 
 Board::Board(){
+    InitAudioDevice();
+
+    movePieceSound = LoadSound("./assets/sounds/move.wav");
+    capturePieceSound = LoadSound("./assets/sounds/capture.wav");
 
     //Initialize the game board
     createBoard();
@@ -11,7 +15,11 @@ Board::Board(){
     initializePieces(BLACK);
 }
 
-Board::~Board(){}
+Board::~Board(){
+    CloseAudioDevice();
+    UnloadSound(movePieceSound);
+    UnloadSound(capturePieceSound);
+}
 
 void Board::createBoard(){
     for(int row = 0; row < ROWS; row++){
@@ -287,13 +295,24 @@ void Board::King_Moves(Piece* selectedPiece, int row, int col){
 
 }
 
-void Board::ProcessMove(Move* newMove){
+void Board::ProcessMove(Move* newMove,int currentPlayer){
     Vector2 initialPosition = newMove->getInitialSquare();
     Vector2 finalPosition = newMove->getFinalSquare();
+
+    Color currentPlayerColor;
+    bool hadEnemyPiece = false;
+
+    if(currentPlayer == PLAYER_ONE){
+        currentPlayerColor = WHITE;
+    }else{
+        currentPlayerColor = BLACK;
+    }
 
 
     // console board move update
     if(gameBoard[finalPosition.y][finalPosition.x].getPiece()){
+        if(gameBoard[finalPosition.y][finalPosition.x].hasRivalPiece(currentPlayerColor))hadEnemyPiece = true;
+
         gameBoard[finalPosition.y][finalPosition.x].deletePiece();
     }
 
@@ -305,11 +324,27 @@ void Board::ProcessMove(Move* newMove){
 
     gameBoard[finalPosition.y][finalPosition.x].piece->setMoved();
 
-    // gameBoard[finalPosition.y][finalPosition.x].piece->setLastMove(newMove);
+    check_pawn_promotion(finalPosition, currentPlayerColor);
+
+    if(hadEnemyPiece){
+        PlaySound(capturePieceSound);
+    }else{
+        PlaySound(movePieceSound);
+    }
+
+
     lastMove = newMove;
 
 
 
+}
+
+void Board::check_pawn_promotion(Vector2 finalSquare, Color pieceColor){
+    if(finalSquare.y == 0 || finalSquare.y == 7){
+        gameBoard[finalSquare.y][finalSquare.x].deletePiece();
+
+        gameBoard[finalSquare.y][finalSquare.x].setPiece(new Queen(pieceColor));
+    }
 }
 
 bool Board::ValidateMove(Piece* selectedPiece, Move* move){
