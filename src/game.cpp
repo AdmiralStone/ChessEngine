@@ -101,6 +101,28 @@ bool Game::validateMove(Move* move){
 }
 void Game::movePiece(Move* newMove){
     board.ProcessMove(newMove);
+
+    switchPlayer();
+}
+
+void Game::switchPlayer(){
+    if(currentPlayer == PLAYER_ONE){
+        currentPlayer = PLAYER_TWO;
+    }else{
+        currentPlayer = PLAYER_ONE;
+    }
+}
+bool Game::checkIfPlayerPiece(Vector2 squarePos){
+    Piece* selectedPiece = getPieceOnSquare(squarePos);
+    Color currentPlayerColor;
+
+    if(currentPlayer == PLAYER_ONE){
+        currentPlayerColor = WHITE;
+    }else{
+        currentPlayerColor = BLACK;
+    }
+
+    return ColorEq(selectedPiece->getPieceColor(),currentPlayerColor);
 }
 
 Game::Game(){}

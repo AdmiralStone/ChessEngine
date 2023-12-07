@@ -11,6 +11,8 @@ class Game{
     private:
         Board board = Board();
         Dragger dragger = Dragger();
+        int currentPlayer = PLAYER_ONE;
+
     public:
         Game();
         ~Game();
@@ -30,6 +32,8 @@ class Game{
         Move* createNewMove(Vector2);
         bool validateMove(Move*);
         void movePiece(Move*);
+        void switchPlayer(); //Switch player after move
+        bool checkIfPlayerPiece(Vector2);// Check if pieceColor matches current Player color
         
 
 

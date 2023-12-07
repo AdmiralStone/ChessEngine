@@ -26,7 +26,7 @@ int main(){
 
                 Vector2 squarePos = {(float)selectedCol,(float)selectedRow};
 
-                if(game.squareHasPiece(squarePos)){
+                if(game.squareHasPiece(squarePos) && game.checkIfPlayerPiece(squarePos)){
                     Piece *piece = game.getPieceOnSquare(squarePos);
 
                     game.generateMoves(piece,squarePos.y,squarePos.x);

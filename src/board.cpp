@@ -306,6 +306,8 @@ void Board::ProcessMove(Move* newMove){
 
     gameBoard[finalPosition.y][finalPosition.x].piece->setMoved();
 
+    gameBoard[finalPosition.y][finalPosition.x].piece->setLastMove(newMove);
+
 
 
 }

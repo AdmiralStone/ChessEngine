@@ -7,6 +7,7 @@ Piece::Piece(/* args */)
 Piece::~Piece()
 {
     UnloadTexture(texture);
+    delete lastMove;
 }
 
 
@@ -58,6 +59,11 @@ int Piece::getPieceDirection(){
 
 void Piece::setMoved(){
     moved = true;
+}
+
+void Piece::setLastMove(Move* lastMove){
+    this->lastMove = lastMove;
+
 }
 
 

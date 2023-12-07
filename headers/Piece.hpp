@@ -17,6 +17,7 @@ protected:
     int direction;
     std::vector<Move*> validMoves;
     bool moved = false;
+    Move* lastMove;
 
 public:
     std::string name;
@@ -27,11 +28,12 @@ public:
     Color getPieceColor();
     void addMoves(Move*);
     std::vector<Move*> getMoveVector();
-    void clearMoveVector();
+    void clearMoveVector(); //Once the piece is moved clear the vector of suggested moves
     
     bool checkIfMoved(); // Method used only for PAWN child to see if the pawn is at starting position
-    int getPieceDirection();
+    int  getPieceDirection(); 
     void setMoved();
+    void setLastMove(Move*);
 
 
     Piece();

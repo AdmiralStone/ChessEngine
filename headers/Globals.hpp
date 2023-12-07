@@ -1,5 +1,9 @@
 #pragma once
 
+//Player one represents white and player two represents black
+#define PLAYER_ONE 1
+#define PLAYER_TWO 2
+
 //FPS
 const int TARGET_FPS = 60;
 
@@ -22,3 +26,5 @@ enum PIECE_TYPE{
     KNIGHT,
     ROOK
 };
+
+
