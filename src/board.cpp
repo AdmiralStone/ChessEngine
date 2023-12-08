@@ -16,9 +16,25 @@ Board::Board(){
 }
 
 Board::~Board(){
+    if(lastMove)delete lastMove;
+
     CloseAudioDevice();
     UnloadSound(movePieceSound);
     UnloadSound(capturePieceSound);
+}
+
+Board::Board(const Board& boardOriginal){
+    for (const auto& row : boardOriginal.gameBoard) {
+    gameBoard.emplace_back();
+    gameBoard.back().reserve(row.size());
+    for (const auto& square : row) {
+        Square *squareCopy = new Square(square);
+        gameBoard.back().emplace_back(*squareCopy);
+    }
+  }
+    
+    movePieceSound = boardOriginal.movePieceSound;
+    capturePieceSound = boardOriginal.movePieceSound;
 }
 
 void Board::createBoard(){
@@ -71,47 +87,47 @@ void Board::initializePieces(Color pieceColor){
 
 }
 
-void Board::calc_moves(Piece* selectedPiece, int row, int col){
+void Board::calc_moves(Piece* selectedPiece, int row, int col, bool checkPotential){
     PIECE_TYPE selectedPieceType = selectedPiece->getPieceType();
 
     switch (selectedPieceType)
     {
     case 0://PAWN
-    {   Pawn_Moves(selectedPiece,row,col);
+    {   Pawn_Moves(selectedPiece,row,col,checkPotential);
         break;
     }
     case 1://KING
     {   
-        King_Moves(selectedPiece,row,col);
+        King_Moves(selectedPiece,row,col,checkPotential);
         break;
     }
     case 2://QUEEN
     {   
         std::vector<std::vector<int>>increments = {{-1,1} , {-1,-1} , {1,1} , {1,-1}, {-1,0} , {0,1} , {1,0} , {0,-1}};
-        Straight_line_Moves(selectedPiece,row,col,increments);
+        Straight_line_Moves(selectedPiece,row,col,increments,checkPotential);
         break;
     }
     case 3://BISHOP
     {
         std::vector<std::vector<int>>increments = {{-1,1} , {-1,-1} , {1,1} , {1,-1}};
-        Straight_line_Moves(selectedPiece,row,col,increments);
+        Straight_line_Moves(selectedPiece,row,col,increments,checkPotential);
         break;
     }
     case 4://KNIGHT
     {
-        Knight_Moves(selectedPiece,row,col);
+        Knight_Moves(selectedPiece,row,col,checkPotential);
         break;
     }
     case 5://ROOK
         {
             std::vector<std::vector<int>>increments = {{-1,0} , {0,1} , {1,0} , {0,-1}};
-            Straight_line_Moves(selectedPiece,row,col,increments);
+            Straight_line_Moves(selectedPiece,row,col,increments,checkPotential);
             break;
         }
     }
 }
 
-void Board::Knight_Moves(Piece *SelectedPiece, int row,int col){
+void Board::Knight_Moves(Piece *SelectedPiece, int row,int col, bool checkPotential){
     // 8 Possible moves for knight
     Color selectedPieceColor = SelectedPiece->getPieceColor();
 
@@ -132,14 +148,23 @@ void Board::Knight_Moves(Piece *SelectedPiece, int row,int col){
             if(gameBoard[possibleRow][possibleCol].empty_or_rival(selectedPieceColor)){
                 // Create New Move
                 // Square *initial = new Square(row,col);
-                Vector2 initialSquarePos = {(float)row,(float)col};
+                Vector2 initialSquarePos = {(float)col,(float)row};
                 // Square *final = new Square(possibleRow,possibleCol);
-                Vector2 finalSquarePos = {(float)possibleRow,(float)possibleCol};
+                Vector2 finalSquarePos = {(float)possibleCol,(float)possibleRow};
 
                 Move *move = new Move(initialSquarePos, finalSquarePos);
                 
-                // Add new move to possible moves list on piece
-                SelectedPiece->addMoves(move);
+                if(checkPotential){
+                    if(!moveLeadsToCheck(SelectedPiece,move)){
+                        // Add new move to possible moves list on piece
+                        SelectedPiece->addMoves(move);
+                    }else{
+                        break;
+                    }
+                }else{
+                    // Add new move to possible moves list on piece
+                    SelectedPiece->addMoves(move);
+                }  
             }
 
         }
@@ -147,7 +172,7 @@ void Board::Knight_Moves(Piece *SelectedPiece, int row,int col){
     }   
 }
 
-void Board::Pawn_Moves(Piece *SelectedPiece, int row,int col){
+void Board::Pawn_Moves(Piece *SelectedPiece, int row,int col, bool checkPotential){
     int steps = 1;
     int pieceDirection = SelectedPiece->getPieceDirection();
     Color selectedPieceColor = SelectedPiece->getPieceColor();
@@ -158,8 +183,6 @@ void Board::Pawn_Moves(Piece *SelectedPiece, int row,int col){
     int start = row + pieceDirection;
     int end = row + (pieceDirection * (1+steps));
 
-    
-
     std::vector<std::vector<int>> valid_moves;
 
     //Calculate the straight moves
@@ -168,15 +191,21 @@ void Board::Pawn_Moves(Piece *SelectedPiece, int row,int col){
             if(gameBoard[possibleRow][col].isEmpty()){
                 
                 // Create New Move
-                // Square *initial = new Square(row,col);
-                Vector2 initialSquarePos = {(float)row,(float)col};
-                // Square *final = new Square(possibleRow,possibleCol);
-                Vector2 finalSquarePos = {(float)possibleRow,(float)col};
-
-                Move *move = new Move(initialSquarePos, finalSquarePos);
+                Vector2 initialSquarePos = {(float)col,(float)row};
                 
-                // Add new move to possible moves list on piece
-                SelectedPiece->addMoves(move);
+                Vector2 finalSquarePos = {(float)col,(float)possibleRow};
+
+                Move* move = new Move(initialSquarePos, finalSquarePos);
+                if(checkPotential){
+                    if(!moveLeadsToCheck(SelectedPiece,move)){
+                        // Add new move to possible moves list on piece
+                        SelectedPiece->addMoves(move);
+                    }
+                }else{
+                    // Add new move to possible moves list on piece
+                    SelectedPiece->addMoves(move);
+                }  
+                
             }else{
                 break;
             }
@@ -194,14 +223,21 @@ void Board::Pawn_Moves(Piece *SelectedPiece, int row,int col){
                 
             // Create New Move
             // Square *initial = new Square(row,col);
-            Vector2 initialSquarePos = {(float)row,(float)col};
+            Vector2 initialSquarePos = {(float)col,(float)row};
             // Square *final = new Square(possibleRow,possibleCol);
-            Vector2 finalSquarePos = {(float)possibleRow,(float)col+1};
+            Vector2 finalSquarePos = {(float)col+1,(float)possibleRow};
 
             Move *move = new Move(initialSquarePos, finalSquarePos);
                 
-            // Add new move to possible moves list on piece
-            SelectedPiece->addMoves(move);
+            if(checkPotential){
+                if(!moveLeadsToCheck(SelectedPiece,move)){
+                    // Add new move to possible moves list on piece
+                    SelectedPiece->addMoves(move);
+                }
+            }else{
+                // Add new move to possible moves list on piece
+                SelectedPiece->addMoves(move);
+            }  
         }
     }
 
@@ -210,19 +246,26 @@ void Board::Pawn_Moves(Piece *SelectedPiece, int row,int col){
                 
             // Create New Move
             // Square *initial = new Square(row,col);
-            Vector2 initialSquarePos = {(float)row,(float)col};
+            Vector2 initialSquarePos = {(float)col,(float)row};
             // Square *final = new Square(possibleRow,possibleCol);
-            Vector2 finalSquarePos = {(float)possibleRow,(float)col-1};
+            Vector2 finalSquarePos = {(float)col-1,(float)possibleRow};
 
             Move *move = new Move(initialSquarePos, finalSquarePos);
-                
-            // Add new move to possible moves list on piece
-            SelectedPiece->addMoves(move);
+         
+            if(checkPotential){
+                if(!moveLeadsToCheck(SelectedPiece,move)){
+                    // Add new move to possible moves list on piece
+                    SelectedPiece->addMoves(move);
+                }
+            }else{
+                // Add new move to possible moves list on piece
+                SelectedPiece->addMoves(move);
+            }
         }
     }
 }
 
-void Board::Straight_line_Moves(Piece *SelectedPiece, int row,int col,std::vector<std::vector<int>>increments){
+void Board::Straight_line_Moves(Piece *SelectedPiece, int row,int col,std::vector<std::vector<int>>increments,bool checkPotential){
     Color selectedPieceColor = SelectedPiece->getPieceColor();
 
     for(auto inc:increments){
@@ -234,16 +277,36 @@ void Board::Straight_line_Moves(Piece *SelectedPiece, int row,int col,std::vecto
 
         while(true){
             if(Square::inRange(possibleRow,possibleCol)){
-                Vector2 initialSquarePos = {(float)row,(float)col};
+                Vector2 initialSquarePos = {(float)col,(float)row};
 
-                Vector2 finalSquarePos = {(float)possibleRow,(float)possibleCol};
+                Vector2 finalSquarePos = {(float)possibleCol,(float)possibleRow};
 
                 Move *move = new Move(initialSquarePos, finalSquarePos);
 
                 if(gameBoard[possibleRow][possibleCol].isEmpty()){
-                    SelectedPiece->addMoves(move);
+                    if(checkPotential){
+                        if(!moveLeadsToCheck(SelectedPiece,move)){
+                            // Add new move to possible moves list on piece
+                            SelectedPiece->addMoves(move);
+                        }else{
+                            break;
+                        }
+                    }else{
+                        // Add new move to possible moves list on piece
+                        SelectedPiece->addMoves(move);
+                    }  
                 }else if(gameBoard[possibleRow][possibleCol].hasRivalPiece(selectedPieceColor)){
-                    SelectedPiece->addMoves(move);
+                    if(checkPotential){
+                        if(!moveLeadsToCheck(SelectedPiece,move)){
+                            // Add new move to possible moves list on piece
+                            SelectedPiece->addMoves(move);
+                        }else{
+                            break;
+                        }
+                    }else{
+                        // Add new move to possible moves list on piece
+                        SelectedPiece->addMoves(move);
+                    }  
                     break;
                 }else{
                     break;
@@ -258,7 +321,7 @@ void Board::Straight_line_Moves(Piece *SelectedPiece, int row,int col,std::vecto
     }
 }
 
-void Board::King_Moves(Piece* selectedPiece, int row, int col){
+void Board::King_Moves(Piece* selectedPiece, int row, int col, bool checkPotential){
     Color selectedPieceColor = selectedPiece->getPieceColor();
 
     std::vector<std::vector<int>>possibleMoves = {
@@ -279,14 +342,23 @@ void Board::King_Moves(Piece* selectedPiece, int row, int col){
         if(Square::inRange(possibleRow,possibleCol)){
             if(gameBoard[possibleRow][possibleCol].empty_or_rival(selectedPieceColor)){
                 // Create New Move
-                Vector2 initialSquarePos = {(float)row,(float)col};
+                Vector2 initialSquarePos = {(float)col,(float)row};
                
-                Vector2 finalSquarePos = {(float)possibleRow,(float)possibleCol};
+                Vector2 finalSquarePos = {(float)possibleCol,(float)possibleRow};
 
                 Move *move = new Move(initialSquarePos, finalSquarePos);
                 
-                // Add new move to possible moves list on piece
-                selectedPiece->addMoves(move);
+                if(checkPotential){
+                    if(!moveLeadsToCheck(selectedPiece,move)){
+                        // Add new move to possible moves list on piece
+                        selectedPiece->addMoves(move);
+                    }else{
+                        break;
+                    }
+                }else{
+                    // Add new move to possible moves list on piece
+                    selectedPiece->addMoves(move);
+                }
             }
         }
     }
@@ -295,7 +367,7 @@ void Board::King_Moves(Piece* selectedPiece, int row, int col){
 
 }
 
-void Board::ProcessMove(Move* newMove,int currentPlayer){
+void Board::ProcessMove(Move* newMove,int currentPlayer, bool virtualProcess){
     Vector2 initialPosition = newMove->getInitialSquare();
     Vector2 finalPosition = newMove->getFinalSquare();
 
@@ -308,9 +380,8 @@ void Board::ProcessMove(Move* newMove,int currentPlayer){
         currentPlayerColor = BLACK;
     }
 
-
     // console board move update
-    if(gameBoard[finalPosition.y][finalPosition.x].getPiece()){
+    if(!virtualProcess && gameBoard[finalPosition.y][finalPosition.x].getPiece()){
         if(gameBoard[finalPosition.y][finalPosition.x].hasRivalPiece(currentPlayerColor))hadEnemyPiece = true;
 
         gameBoard[finalPosition.y][finalPosition.x].deletePiece();
@@ -324,7 +395,9 @@ void Board::ProcessMove(Move* newMove,int currentPlayer){
 
     gameBoard[finalPosition.y][finalPosition.x].piece->setMoved();
 
-    check_pawn_promotion(finalPosition, currentPlayerColor);
+    if(gameBoard[finalPosition.y][finalPosition.x].piece->getPieceType() == 0){
+        check_pawn_promotion(finalPosition, currentPlayerColor);
+    }
 
     if(hadEnemyPiece){
         PlaySound(capturePieceSound);
@@ -332,10 +405,7 @@ void Board::ProcessMove(Move* newMove,int currentPlayer){
         PlaySound(movePieceSound);
     }
 
-
     lastMove = newMove;
-
-
 
 }
 
@@ -347,9 +417,54 @@ void Board::check_pawn_promotion(Vector2 finalSquare, Color pieceColor){
     }
 }
 
+bool Board::moveLeadsToCheck(Piece* selectedPiece,Move* move){
+    Board* copyBoard = new Board(*this);
+    Piece* copyPiece = new Piece(*selectedPiece);
+    
+    //Check which color piece is being moved
+    int currentPlayer;
+    if(ColorEq(copyPiece->getPieceColor(),WHITE)){
+        currentPlayer = PLAYER_ONE;
+    }else{
+        currentPlayer = PLAYER_TWO;
+    }
+
+    
+
+    // Piece is moved to next square in our virtual copy board.
+    // Send YES for virtualProcess variable in ProcessMove
+    copyBoard->ProcessMove(move,currentPlayer,true); 
+    
+    //Now for all enemey pieces check if their suggested moves lead to the king
+    for(int row = 0; row<ROWS;row++){
+        for(int col = 0;col<COLS;col++){
+            if(copyBoard->gameBoard[row][col].hasRivalPiece(copyPiece->getPieceColor())){
+                //Get the enemy piece on a particular square
+                Piece* virtualPiece = copyBoard->gameBoard[row][col].getPiece();
+
+                // For that enemy piece calculate all its possible moves
+                copyBoard->calc_moves(virtualPiece,row,col,false);
+
+                //Get array of all possible moves for that piece
+                for(auto move:virtualPiece->getMoveVector()){
+                    // Get the final square for each move
+                    Vector2 finalSquare = move->getFinalSquare();
+
+                    // Check if the piece on the final square is a King
+                    if(copyBoard->gameBoard[finalSquare.y][finalSquare.x].hasRivalPiece(virtualPiece->getPieceColor()) && copyBoard->gameBoard[finalSquare.y][finalSquare.x].getPiece()->getPieceType() == 1){
+                        return true; 
+                    }
+                }
+            }
+        }
+    }
+
+    return false;
+}
+
 bool Board::ValidateMove(Piece* selectedPiece, Move* move){
-    int finalSquareRow = move->getFinalSquare().x;
-    int finalSquareCol = move->getFinalSquare().y;
+    int finalSquareRow = move->getFinalSquare().y;
+    int finalSquareCol = move->getFinalSquare().x;
 
     for(auto possibleMoves:selectedPiece->getMoveVector()){
 

@@ -4,10 +4,27 @@ Piece::Piece(/* args */)
 {
 }
 
+Piece::Piece(const Piece& originalPiece){
+    PieceType = originalPiece.PieceType;
+    color = originalPiece.color;
+    value = originalPiece.value;
+    direction = originalPiece.direction;
+    
+    for(Move* move:originalPiece.validMoves){
+        validMoves.push_back(new Move(*move));
+    }
+
+    moved = originalPiece.moved;
+    lastMove = originalPiece.lastMove;
+
+    texture = originalPiece.texture;
+    name = originalPiece.name;
+}
+
 Piece::~Piece()
 {
-    UnloadTexture(texture);
     
+    UnloadTexture(texture);
 }
 
 

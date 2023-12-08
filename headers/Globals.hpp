@@ -28,3 +28,5 @@ enum PIECE_TYPE{
 };
 
 
+//Y is Row
+//X is COL

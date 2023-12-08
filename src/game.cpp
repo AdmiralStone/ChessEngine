@@ -72,8 +72,8 @@ void Game::showPossibleMoves(){
             Color sqColor;
             Vector2 boardSquare = move->getFinalSquare();
 
-            int row = boardSquare.x;
-            int col = boardSquare.y;
+            int row = boardSquare.y;
+            int col = boardSquare.x;
 
             if(( row + col ) % 2 == 0){
                 sqColor = red;
@@ -116,7 +116,7 @@ Piece* Game::getPieceOnSquare(Vector2 squarePos){
     return board.gameBoard[squarePos.y][squarePos.x].piece;
 }
 void Game::generateMoves(Piece* selectedPiece, int pieceRow, int pieceCol){
-    board.calc_moves(selectedPiece,pieceRow,pieceCol);
+    board.calc_moves(selectedPiece,pieceRow,pieceCol,true);
 }
 bool Game::checkIfValidLastMove(){
     if(board.getLastMove() != nullptr){
@@ -140,7 +140,7 @@ bool Game::validateMove(Move* move){
     return board.ValidateMove(selectedPiece,move);
 }
 void Game::movePiece(Move* newMove){
-    board.ProcessMove(newMove,currentPlayer);
+    board.ProcessMove(newMove,currentPlayer,false);
 
     switchPlayer();
 }

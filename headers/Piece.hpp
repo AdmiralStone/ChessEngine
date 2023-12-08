@@ -17,11 +17,12 @@ protected:
     int direction;
     std::vector<Move*> validMoves;
     bool moved = false;
-    Move* lastMove;
+    Move* lastMove = nullptr;
 
 public:
     std::string name;
     Texture2D texture;
+    bool isCopy = false;
 
     void setTexture(int size=80);
     PIECE_TYPE getPieceType();
@@ -37,6 +38,7 @@ public:
 
 
     Piece();
+    Piece(const Piece&);
     ~Piece();
 };
 

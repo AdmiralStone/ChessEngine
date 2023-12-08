@@ -6,6 +6,11 @@ Move::Move(Vector2 originalSquare,Vector2 possibleSquare)
     finalSquarePos = possibleSquare;
 }
 
+Move::Move(const Move& originalMove){
+    initialSqarePos = originalMove.initialSqarePos;
+    finalSquarePos = originalMove.finalSquarePos;
+}
+
 Move::~Move()
 {
 }

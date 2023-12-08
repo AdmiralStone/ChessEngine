@@ -21,6 +21,7 @@ public:
     unsigned int square_col_pos;
 
     Square(int row, int col);
+    Square(const Square&);
     ~Square();
     
     Piece* piece;

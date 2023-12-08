@@ -13,6 +13,7 @@ protected:
 public:
    Move(Vector2, Vector2);
    ~Move();
+   Move(const Move&);
 
    Vector2 getFinalSquare();
    Vector2 getInitialSquare();

@@ -9,6 +9,17 @@ Square::Square(int row, int col ){
 
 }
 
+Square::Square(const Square& originalSquare){
+    square_col_pos = originalSquare.square_col_pos;
+    square_row_pos = originalSquare.square_row_pos;
+    
+    if(originalSquare.piece){
+        piece = new Piece(*originalSquare.piece);
+    }else{
+        piece = nullptr;
+    }
+}
+
 Square::~Square(){
     delete piece;
 }
